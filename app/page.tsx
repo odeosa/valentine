@@ -192,7 +192,7 @@ export default function ValentinePage() {
             </div>
           </>
         ) : (
-          <h2 style={styles.success}>Yayyy 💖 Thank you for accepting! You have made me the happiest person in the world! 💕🕺🏽</h2>
+          <h2 style={styles.success, styles.successOverlay}>Yayyy 💖 Thank you for accepting! You have made me the happiest person in the world! 💕🕺🏽</h2>
         )}
       </div>
     </main>
@@ -273,6 +273,15 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "0.8rem 2rem",
     cursor: "pointer",
     transition: "all 0.25s ease",
+  },
+  successOverlay: {
+  position: "absolute",
+  inset: "0",
+  background: "white",
+  zIndex: "50",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   },
   success: {
     fontSize: "1.8rem",
