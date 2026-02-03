@@ -38,8 +38,11 @@ export default function ValentinePage() {
   const card = cardRef.current.getBoundingClientRect();
   const yesRect = yesRef.current.getBoundingClientRect();
 
-  const noWidth = 120;
-  const noHeight = 48;
+  const noWidth = 130;
+  const noHeight = 54;
+  // Extra safety padding around YES
+  const safetyPadding = 24;
+
 
   const maxX = card.width - noWidth;
   const maxY = card.height - noHeight;
@@ -55,14 +58,15 @@ export default function ValentinePage() {
     tries++;
   } while (
     isOverlapping(
-      { left, top, width: noWidth, height: noHeight },
-      {
-        left: yesRect.left - card.left,
-        top: yesRect.top - card.top,
-        width: yesRect.width,
-        height: yesRect.height,
-      }
-    ) &&
+  { left, top, width: noWidth, height: noHeight },
+  {
+    left: yesRect.left - card.left - safetyPadding,
+    top: yesRect.top - card.top - safetyPadding,
+    width: yesRect.width + safetyPadding * 2,
+    height: yesRect.height + safetyPadding * 2,
+  }
+)
+ &&
     tries < 10
   );
 
@@ -152,16 +156,15 @@ export default function ValentinePage() {
 
             <div style={styles.buttonsWrap}>
               <button
-  ref={yesRef}
-  onClick={sayYes}
-  style={{
-    ...styles.yesBtn,
-    transform: `scale(${yesScale})`,
-    width: yesScale > 1.5 ? "80%" : "160px",
-    height: yesScale > 1.5 ? "64px" : "48px",
-  }}
->
-
+                ref={yesRef}
+                onClick={sayYes}
+                style={{
+                  ...styles.yesBtn,
+                  transform: `scale(${yesScale})`,
+                  width: yesScale > 1.5 ? "80%" : "160px",
+                  height: yesScale > 1.5 ? "64px" : "48px",
+                }}
+              >
                 Yes 😍
               </button>
 
@@ -175,7 +178,7 @@ export default function ValentinePage() {
                     left: noAbsolute ? noPos.left : "auto",
                     top: noAbsolute ? noPos.top : "auto",
                     transform: `scale(${noScale})`,
-                    zIndex: 1,
+                    zIndex: attempts.current < 15 ? 3 : 1,
                   }}
                 >
                   No 😔
