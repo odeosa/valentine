@@ -3,76 +3,71 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function ValentinePage() {
-  // Position of the NO button (percentages keep it responsive)
-  const [noPosition, setNoPosition] = useState({ top: 60, left: 60 });
-
-  // Scale factor for YES button
+  const [noAbsolute, setNoAbsolute] = useState(false);
+  const [noPos, setNoPos] = useState({ top: 50, left: 60 });
   const [yesScale, setYesScale] = useState(1);
-
-  // Hide NO after enough failed attempts
-  const [hideNo, setHideNo] = useState(false);
-
-  // Final success state
   const [saidYes, setSaidYes] = useState(false);
 
-  const attemptsRef = useRef(0);
+  const attempts = useRef(0);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   /**
-   * Moves NO more aggressively and grows YES.
+   * Moves NO button and grows YES.
+   * NO becomes absolute only after first interaction.
    */
-  const moveNoButton = () => {
-    attemptsRef.current += 1;
+  const dodgeNo = () => {
+    attempts.current += 1;
 
-    // Cap YES growth so it never overflows the card
-    setYesScale((prev) => Math.min(prev + 0.18, 2.6));
+    if (!noAbsolute) setNoAbsolute(true);
 
-    // Remove NO completely after enough tries
-    if (attemptsRef.current >= 7) {
-      setHideNo(true);
-      return;
-    }
+    setYesScale((s) => Math.min(s + 0.2, 2.8));
 
-    // Wider movement range so NO really escapes
-    setNoPosition({
-      top: Math.random() * 60 + 20, // 20% – 80%
+    setNoPos({
+      top: Math.random() * 60 + 20,
       left: Math.random() * 60 + 20,
     });
   };
 
-  const handleYesClick = () => {
+  const sayYes = () => {
     setSaidYes(true);
-    launchConfetti();
+    launchHeartConfetti();
   };
 
   /**
-   * Lightweight canvas confetti
+   * Heart-shaped confetti using canvas
    */
-  const launchConfetti = () => {
+  const launchHeartConfetti = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const particles = Array.from({ length: 120 }).map(() => ({
+    const hearts = Array.from({ length: 120 }).map(() => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height - canvas.height,
-      size: Math.random() * 6 + 4,
-      speed: Math.random() * 3 + 2,
-      color: `hsl(${Math.random() * 360}, 90%, 70%)`,
+      size: Math.random() * 10 + 8,
+      speed: Math.random() * 2 + 2,
+      color: "#ff4d6d",
     }));
+
+    const drawHeart = (x: number, y: number, size: number) => {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x - size, y - size, x - size * 2, y + size / 2, x, y + size * 1.5);
+      ctx.bezierCurveTo(x + size * 2, y + size / 2, x + size, y - size, x, y);
+      ctx.fill();
+    };
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p) => {
-        p.y += p.speed;
-        if (p.y > canvas.height) p.y = -10;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
+      hearts.forEach((h) => {
+        h.y += h.speed;
+        if (h.y > canvas.height) h.y = -20;
+        ctx.fillStyle = h.color;
+        drawHeart(h.x, h.y, h.size);
       });
       requestAnimationFrame(animate);
     };
@@ -92,55 +87,59 @@ export default function ValentinePage() {
 
   return (
     <main style={styles.page}>
-      {/* Google Font */}
       <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap"
         rel="stylesheet"
       />
 
       <canvas ref={canvasRef} style={styles.canvas} />
 
+      {/* Floating background hearts */}
+      <div style={styles.bgHearts} />
+
       <div style={styles.card}>
         {!saidYes ? (
           <>
-            {/* 20%: Question */}
-            <div style={styles.header}>
+            {/* Text moves up as YES grows */}
+            <div
+              style={{
+                ...styles.textWrap,
+                transform: `translateY(-${(yesScale - 1) * 20}px)`,
+              }}
+            >
               <h1 style={styles.question}>
-                Nma, will you be my Valentine? 🥹
+                Nma, will you be my Valentine? 🥺
               </h1>
             </div>
 
-            {/* 80%: Button area */}
-            <div style={styles.body}>
+            <div style={styles.buttonsWrap}>
               <button
-                onClick={handleYesClick}
+                onClick={sayYes}
                 style={{
-                  ...styles.yesButton,
+                  ...styles.yesBtn,
                   transform: `scale(${yesScale})`,
+                  width: yesScale > 1.6 ? "80%" : "160px",
                 }}
               >
                 Yes 😍
               </button>
 
-              {!hideNo && (
-                <button
-                  onMouseEnter={moveNoButton}
-                  onClick={moveNoButton}
-                  style={{
-                    ...styles.noButton,
-                    top: `${noPosition.top}%`,
-                    left: `${noPosition.left}%`,
-                  }}
-                >
-                  No 😏
-                </button>
-              )}
+              <button
+                onMouseEnter={dodgeNo}
+                onClick={dodgeNo}
+                style={{
+                  ...styles.noBtn,
+                  position: noAbsolute ? "absolute" : "relative",
+                  top: noAbsolute ? `${noPos.top}%` : "auto",
+                  left: noAbsolute ? `${noPos.left}%` : "auto",
+                }}
+              >
+                No 😔
+              </button>
             </div>
           </>
         ) : (
-          <h2 style={styles.success}>
-            Yay!!! 💘 I’m so happy you said yes! You have made me the happiest man alive! 💕
-          </h2>
+          <h2 style={styles.success}>Yayyy 💖 I love you, Nma 🥹</h2>
         )}
       </div>
     </main>
@@ -150,78 +149,84 @@ export default function ValentinePage() {
 const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #CB2B37, #E9434F)",
+    background: "#cc2b35",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "1rem",
     fontFamily: "'Poppins', system-ui, sans-serif",
+    position: "relative",
+    overflow: "hidden",
   },
   canvas: {
     position: "fixed",
     inset: 0,
     pointerEvents: "none",
   },
+  bgHearts: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 2px, transparent 3px), radial-gradient(circle at 70% 60%, rgba(255,255,255,0.06) 2px, transparent 3px)",
+    backgroundSize: "120px 120px",
+    animation: "float 20s linear infinite",
+  },
   card: {
+    width: "90%",
+    maxWidth: "560px",
+    height: "360px",
     background: "#fff",
-    width: "100%",
-    maxWidth: "765px",
-    height: "505px",
     borderRadius: "24px",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden",
-    position: "relative",
-  },
-  header: {
-    height: "20%",
-    display: "flex",
-    alignItems: "center",
     justifyContent: "center",
-    padding: "1rem",
-  },
-  question: {
-    fontSize: "1.4rem",
-    textAlign: "center",
-    color: "#FF0000",
-    fontWeight: 600,
-  },
-  body: {
-    height: "80%",
-    position: "relative",
-    display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    gap: "1rem",
-  },
-  yesButton: {
-    padding: "0.9rem 2.2rem",
-    borderRadius: "999px",
-    border: "none",
-    background: "#CB2B37",
-    color: "#fff",
-    fontSize: "1rem",
-    cursor: "pointer",
-    transition: "transform 0.25s ease",
+    padding: "2rem",
+    position: "relative",
     zIndex: 2,
   },
-  noButton: {
-    position: "absolute",
-    padding: "0.9rem 2.2rem",
-    borderRadius: "999px",
+  textWrap: {
+    marginBottom: "2rem",
+    transition: "transform 0.3s ease",
+  },
+  question: {
+    color: "#ff0000",
+    fontSize: "1.8rem",
+    fontWeight: 600,
+    textAlign: "center",
+  },
+  buttonsWrap: {
+    display: "flex",
+    gap: "1rem",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+    width: "100%",
+  },
+  yesBtn: {
+    background: "#cc2b35",
+    color: "#fff",
     border: "none",
-    background: "#f2f2f2",
-    color: "#ff2d55",
+    borderRadius: "999px",
+    padding: "0.8rem 2rem",
     fontSize: "1rem",
     cursor: "pointer",
-    transition: "top 0.25s ease, left 0.25s ease",
+    transition: "transform 0.3s ease, width 0.3s ease",
+    zIndex: 2,
+  },
+  noBtn: {
+    background: "#eee",
+    color: "#000",
+    border: "none",
+    borderRadius: "999px",
+    padding: "0.8rem 2rem",
+    fontSize: "1rem",
+    cursor: "pointer",
+    transition: "top 0.3s ease, left 0.3s ease",
   },
   success: {
-    margin: "auto",
+    fontSize: "1.8rem",
+    color: "#cc2b35",
     textAlign: "center",
-    fontSize: "1.6rem",
-    color: "#ff2d55",
-    padding: "1.5rem",
   },
 };
