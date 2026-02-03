@@ -135,6 +135,11 @@ export default function ValentinePage() {
 
   return (
     <main style={styles.page}>
+      {/* Google Font */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+        rel="stylesheet"
+      />
       <canvas ref={canvasRef} style={styles.canvas} />
 
       <div style={styles.bgHearts} />
@@ -203,6 +208,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     position: "relative",
     overflow: "hidden",
+    fontFamily: "'Poppins', system-ui, sans-serif"
   },
   canvas: {
     position: "fixed",
