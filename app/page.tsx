@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function ValentinePage() {
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const yesRef = useRef<HTMLButtonElement | null>(null);
 
   const [noAbsolute, setNoAbsolute] = useState(false);
   const [noPos, setNoPos] = useState({ top: 0, left: 0 });
@@ -19,32 +20,55 @@ export default function ValentinePage() {
    * YES grows in width & height.
    * After 15 attempts, NO hides behind YES.
    */
-  const dodgeNo = () => {
-    if (attempts.current >= 15) return;
+ const dodgeNo = () => {
+  if (attempts.current >= 15) return;
 
-    attempts.current += 1;
+  attempts.current += 1;
 
-    if (!noAbsolute) setNoAbsolute(true);
+  if (!noAbsolute) setNoAbsolute(true);
 
-    // Grow YES (both width & height)
-    setYesScale((s) => Math.min(s + 0.15, 2.6));
+  // Grow YES (both width & height)
+  setYesScale((s) => Math.min(s + 0.15, 2.6));
 
-    // Shrink NO slightly
-    setNoScale((s) => Math.max(0.4, s - 0.05));
+  // Shrink NO slightly
+  setNoScale((s) => Math.max(0.4, s - 0.05));
 
-    // Move NO anywhere inside the card
-    if (cardRef.current) {
-      const card = cardRef.current.getBoundingClientRect();
+  if (!cardRef.current || !yesRef.current) return;
 
-      const maxX = card.width - 120;
-      const maxY = card.height - 60;
+  const card = cardRef.current.getBoundingClientRect();
+  const yesRect = yesRef.current.getBoundingClientRect();
 
-      setNoPos({
-        left: Math.random() * maxX,
-        top: Math.random() * maxY,
-      });
-    }
-  };
+  const noWidth = 120;
+  const noHeight = 48;
+
+  const maxX = card.width - noWidth;
+  const maxY = card.height - noHeight;
+
+  let left = 0;
+  let top = 0;
+  let tries = 0;
+
+  // Keep generating positions until NO does not overlap YES
+  do {
+    left = Math.random() * maxX;
+    top = Math.random() * maxY;
+    tries++;
+  } while (
+    isOverlapping(
+      { left, top, width: noWidth, height: noHeight },
+      {
+        left: yesRect.left - card.left,
+        top: yesRect.top - card.top,
+        width: yesRect.width,
+        height: yesRect.height,
+      }
+    ) &&
+    tries < 10
+  );
+
+  setNoPos({ left, top });
+};
+
 
   const sayYes = () => {
     setSaidYes(true);
@@ -128,14 +152,16 @@ export default function ValentinePage() {
 
             <div style={styles.buttonsWrap}>
               <button
-                onClick={sayYes}
-                style={{
-                  ...styles.yesBtn,
-                  transform: `scale(${yesScale})`,
-                  width: yesScale > 1.5 ? "80%" : "160px",
-                  height: yesScale > 1.5 ? "64px" : "48px",
-                }}
-              >
+  ref={yesRef}
+  onClick={sayYes}
+  style={{
+    ...styles.yesBtn,
+    transform: `scale(${yesScale})`,
+    width: yesScale > 1.5 ? "80%" : "160px",
+    height: yesScale > 1.5 ? "64px" : "48px",
+  }}
+>
+
                 Yes 😍
               </button>
 
@@ -158,7 +184,7 @@ export default function ValentinePage() {
             </div>
           </>
         ) : (
-          <h2 style={styles.success}>Yayyy 💖 I love you, Nma 🥹</h2>
+          <h2 style={styles.success}>Yayyy 💖 Thank you for accepting! You have made me the happiest person in the world! 💕🕺🏽</h2>
         )}
       </div>
     </main>
@@ -245,3 +271,11 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: "center",
   },
 };
+function isOverlapping(a: any, b: any) {
+  return !(
+    a.left + a.width < b.left ||
+    a.left > b.left + b.width ||
+    a.top + a.height < b.top ||
+    a.top > b.top + b.height
+  );
+}
