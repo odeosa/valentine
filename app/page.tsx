@@ -272,6 +272,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "1.8rem",
     color: "#cc2b35",
     textAlign: "center",
+    width: "90%",
+    maxWidth: "420px",
+    padding: "32px 24px",
+    borderRadius: "24px",
   },
 };
 function isOverlapping(a: any, b: any) {
