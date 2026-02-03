@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function ValentinePage() {
   // Position of the NO button (percentages keep it responsive)
-  const [noPosition, setNoPosition] = useState({ top: 50, left: 60 });
+  const [noPosition, setNoPosition] = useState({ top: 60, left: 60 });
 
   // Scale factor for YES button
   const [yesScale, setYesScale] = useState(1);
@@ -106,7 +106,7 @@ export default function ValentinePage() {
             {/* 20%: Question */}
             <div style={styles.header}>
               <h1 style={styles.question}>
-                Nma, will you be my Valentine? 💖
+                Nma, will you be my Valentine? 🥹
               </h1>
             </div>
 
@@ -119,7 +119,7 @@ export default function ValentinePage() {
                   transform: `scale(${yesScale})`,
                 }}
               >
-                Yes 💕
+                Yes 😍
               </button>
 
               {!hideNo && (
@@ -139,7 +139,7 @@ export default function ValentinePage() {
           </>
         ) : (
           <h2 style={styles.success}>
-            Yay!!! 💘 I’m so happy you said yes, Nma 🥹
+            Yay!!! 💘 I’m so happy you said yes! You have made me the happiest man alive! 💕
           </h2>
         )}
       </div>
@@ -150,7 +150,7 @@ export default function ValentinePage() {
 const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #ff758c, #ff7eb3)",
+    background: "linear-gradient(135deg, #CB2B37, #E9434F)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -165,8 +165,8 @@ const styles: Record<string, React.CSSProperties> = {
   card: {
     background: "#fff",
     width: "100%",
-    maxWidth: "420px",
-    height: "480px",
+    maxWidth: "765px",
+    height: "505px",
     borderRadius: "24px",
     boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
     display: "flex",
@@ -184,13 +184,13 @@ const styles: Record<string, React.CSSProperties> = {
   question: {
     fontSize: "1.4rem",
     textAlign: "center",
-    color: "#ff2d55",
+    color: "#FF0000",
     fontWeight: 600,
   },
   body: {
     height: "80%",
     position: "relative",
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     gap: "1rem",
@@ -199,7 +199,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "0.9rem 2.2rem",
     borderRadius: "999px",
     border: "none",
-    background: "#ff2d55",
+    background: "#CB2B37",
     color: "#fff",
     fontSize: "1rem",
     cursor: "pointer",
